@@ -1,30 +1,104 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:notepad/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
+  Finder noteTextField() {
+    return find.byWidgetPredicate(
+      (widget) =>
+          widget is TextField &&
+          widget.decoration?.hintText == 'Type something...',
+    );
+  }
+
+  testWidgets('creates a typed note', (WidgetTester tester) async {
     await tester.pumpWidget(const Notepad());
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('My Notes'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
     await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('New Note'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('note-title')),
+      'Shopping',
+    );
+    await tester.enterText(
+      noteTextField().first,
+      'Milk and eggs',
+    );
+
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Shopping'), findsOneWidget);
+    expect(find.text('Milk and eggs'), findsOneWidget);
+  });
+
+  testWidgets('mixes typed text and a sketch in one note', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const Notepad());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const ValueKey('note-title')),
+      'Ideas',
+    );
+    await tester.enterText(
+      noteTextField().first,
+      'Sketch below',
+    );
+
+    await tester.ensureVisible(find.text('Add sketch'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Add sketch'));
+    await tester.pumpAndSettle();
+
+    final canvas = find.byKey(
+      const ValueKey('drawing-canvas'),
+    );
+    expect(canvas, findsOneWidget);
+
+    await tester.ensureVisible(canvas);
+    await tester.pumpAndSettle();
+
+    await tester.drag(canvas, const Offset(60, 40));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ideas'), findsOneWidget);
+    expect(find.text('Sketch below'), findsOneWidget);
+
+    final prefs = await SharedPreferences.getInstance();
+    final saved =
+        jsonDecode(prefs.getString('notes')!) as List<dynamic>;
+    final note = saved.first as Map<String, dynamic>;
+    final blocks =
+        jsonDecode(note['blocks'] as String) as List<dynamic>;
+    final types = blocks
+        .map(
+          (block) => (block as Map<String, dynamic>)['type'],
+        )
+        .toList();
+
+    expect(types, containsAll(<String>['text', 'drawing']));
   });
 }
