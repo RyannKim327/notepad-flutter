@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../models/note_block.dart';
 
@@ -38,6 +40,8 @@ class DrawingCanvasState extends State<DrawingCanvas> {
     uniformTypeIdentifiers: ['public.image'],
   );
 
+  final ImagePicker _imagePicker = ImagePicker();
+
   late final List<List<Offset>> _strokes;
 
   List<Offset>? _currentStroke;
@@ -70,6 +74,21 @@ class DrawingCanvasState extends State<DrawingCanvas> {
   // The base64-encoded image currently used as the canvas background.
   String? get backgroundImage => _backgroundImage;
 
+  // The camera is only available through the native camera app on mobile
+  // and through a capture input on the web.
+  static bool get _supportsCamera {
+    if (kIsWeb) return true;
+
+    return defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+  }
+
+  void _applyBackground(Uint8List bytes) {
+    setState(() {
+      _backgroundImage = base64Encode(bytes);
+    });
+  }
+
   // Pick an image to show behind the current sketch.
   Future<void> _pickBackground() async {
     try {
@@ -81,15 +100,48 @@ class DrawingCanvasState extends State<DrawingCanvas> {
 
       if (!mounted) return;
 
-      setState(() {
-        _backgroundImage = base64Encode(bytes);
-      });
+      _applyBackground(bytes);
     } catch (error) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Could not load image: $error')));
+    }
+  }
+
+  // Take a photo with the device camera and use it as the background.
+  Future<void> _takePhoto() async {
+    if (!_supportsCamera) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Taking photos is not supported on this platform.'),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final photo = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1600,
+        maxHeight: 1600,
+        imageQuality: 85,
+      );
+
+      if (photo == null) return;
+
+      final bytes = await photo.readAsBytes();
+
+      if (!mounted) return;
+
+      _applyBackground(bytes);
+    } catch (error) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not take photo: $error')));
     }
   }
 
@@ -203,13 +255,22 @@ class DrawingCanvasState extends State<DrawingCanvas> {
                 color: _backgroundImage == null ? null : Colors.amber.shade800,
               ),
               onSelected: (value) {
-                if (value == 'pick') {
+                if (value == 'camera') {
+                  _takePhoto();
+                } else if (value == 'pick') {
                   _pickBackground();
                 } else if (value == 'remove') {
                   _removeBackground();
                 }
               },
               itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'camera',
+                  child: ListTile(
+                    leading: Icon(Icons.photo_camera_outlined),
+                    title: Text('Take photo'),
+                  ),
+                ),
                 const PopupMenuItem(
                   value: 'pick',
                   child: ListTile(

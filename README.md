@@ -109,6 +109,7 @@ Everything is stored locally on the device; there is no backend or sync service.
 | PDF generation | `pdf` |
 | File saving / export | `file_saver` |
 | File picking / import | `file_selector` |
+| Camera capture | `image_picker` |
 | Icons | `cupertino_icons` |
 | Linting | `flutter_lints` (`package:flutter_lints/flutter.yaml`) |
 
@@ -317,7 +318,8 @@ Notes are saved as a whole list on every change (`saveNotes`). On web,
 
 - Freehand pointer input with a single active pointer (`Listener` events).
 - Uses an `EagerGestureRecognizer` so drawing does not scroll the editor.
-- Tools: four pen colors, background image picker/removal, undo, and clear.
+- Tools: four pen colors, background image picker/removal, camera capture
+  (Android/iOS/web), undo, and clear.
 - Exposes `allStrokes` (including the in-progress stroke) and `backgroundImage`
   for the parent editor to collect.
 - `StrokePainter` renders live strokes; `DrawingThumbnailPainter` renders scaled
@@ -343,6 +345,9 @@ submitting changes.
 
 - **SharedPreferences** stores all data locally; on web it maps to
   `localStorage`. There is no encryption.
+- **image_picker** opens the native camera on Android/iOS and a capture input on
+  the web. Camera capture is not available on desktop, where the menu shows a
+  notice instead. iOS requires `NSCameraUsageDescription` (already set).
 - **file_selector** is used for JSON import and sketch background images. Some
   platforms may require plugin registration (handled by Flutter tooling).
 - **file_saver** uses a native save dialog on Android, iOS, macOS, and Windows;
