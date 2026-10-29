@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'dart:ui';
 
 // The kinds of content a note can contain.
@@ -12,11 +13,15 @@ class NoteBlockData {
 
   final List<List<Offset>> strokes;
 
+  // Base64-encoded image shown behind the strokes of a sketch.
+  final String? backgroundImage;
+
   const NoteBlockData.text(this.text)
     : type = NoteBlockType.text,
-      strokes = const [];
+      strokes = const [],
+      backgroundImage = null;
 
-  const NoteBlockData.drawing(this.strokes)
+  const NoteBlockData.drawing(this.strokes, {this.backgroundImage})
     : type = NoteBlockType.drawing,
       text = '';
 
@@ -30,6 +35,8 @@ class NoteBlockData {
       'strokes': strokes
           .map((stroke) => stroke.map((point) => [point.dx, point.dy]).toList())
           .toList(),
+      if (backgroundImage != null && backgroundImage!.isNotEmpty)
+        'backgroundImage': backgroundImage,
     };
   }
 
@@ -50,10 +57,24 @@ class NoteBlockData {
         }).toList();
       }).toList();
 
-      return NoteBlockData.drawing(strokes);
+      final backgroundImage = json['backgroundImage'] as String?;
+
+      return NoteBlockData.drawing(strokes, backgroundImage: backgroundImage);
     }
 
     return NoteBlockData.text(json['text'] as String? ?? '');
+  }
+}
+
+// Decodes a stored background image, returning null when it is missing or
+// cannot be decoded.
+Uint8List? decodeBackgroundImage(String? encoded) {
+  if (encoded == null || encoded.isEmpty) return null;
+
+  try {
+    return base64Decode(encoded);
+  } catch (_) {
+    return null;
   }
 }
 

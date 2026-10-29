@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'screens/home_page.dart';
 
 void main() {
-  runApp(const Notepad());
+  runApp(const Notebook());
 }
 
-class Notepad extends StatelessWidget {
-  const Notepad({super.key});
+class Notebook extends StatelessWidget {
+  const Notebook({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Notepad',
+      title: 'Notebook',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),

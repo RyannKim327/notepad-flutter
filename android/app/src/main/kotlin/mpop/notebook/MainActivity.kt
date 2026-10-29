@@ -1,4 +1,4 @@
-package com.example.notepad
+package mpop.notebook
 
 import io.flutter.embedding.android.FlutterActivity
 

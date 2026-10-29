@@ -1,5 +1,10 @@
+import 'dart:convert';
+
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+
+import '../models/note_block.dart';
 
 // Pen colors offered in the handwriting canvas.
 const List<Color> _penColors = [
@@ -13,13 +18,26 @@ const List<Color> _penColors = [
 class DrawingCanvas extends StatefulWidget {
   final List<List<Offset>> initialStrokes;
 
-  const DrawingCanvas({super.key, this.initialStrokes = const []});
+  final String? initialBackgroundImage;
+
+  const DrawingCanvas({
+    super.key,
+    this.initialStrokes = const [],
+    this.initialBackgroundImage,
+  });
 
   @override
   State<DrawingCanvas> createState() => DrawingCanvasState();
 }
 
 class DrawingCanvasState extends State<DrawingCanvas> {
+  static const XTypeGroup _imageTypeGroup = XTypeGroup(
+    label: 'Image',
+    extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
+    mimeTypes: ['image/*'],
+    uniformTypeIdentifiers: ['public.image'],
+  );
+
   late final List<List<Offset>> _strokes;
 
   List<Offset>? _currentStroke;
@@ -28,6 +46,8 @@ class DrawingCanvasState extends State<DrawingCanvas> {
 
   Color _penColor = _penColors.first;
 
+  String? _backgroundImage;
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +55,8 @@ class DrawingCanvasState extends State<DrawingCanvas> {
     _strokes = widget.initialStrokes
         .map((stroke) => List<Offset>.from(stroke))
         .toList();
+
+    _backgroundImage = widget.initialBackgroundImage;
   }
 
   // Includes the stroke that is currently being drawn, if any.
@@ -43,6 +65,38 @@ class DrawingCanvasState extends State<DrawingCanvas> {
       ..._strokes,
       if (_currentStroke != null) List<Offset>.from(_currentStroke!),
     ];
+  }
+
+  // The base64-encoded image currently used as the canvas background.
+  String? get backgroundImage => _backgroundImage;
+
+  // Pick an image to show behind the current sketch.
+  Future<void> _pickBackground() async {
+    try {
+      final file = await openFile(acceptedTypeGroups: const [_imageTypeGroup]);
+
+      if (file == null) return;
+
+      final bytes = await file.readAsBytes();
+
+      if (!mounted) return;
+
+      setState(() {
+        _backgroundImage = base64Encode(bytes);
+      });
+    } catch (error) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not load image: $error')));
+    }
+  }
+
+  void _removeBackground() {
+    setState(() {
+      _backgroundImage = null;
+    });
   }
 
   void _startStroke(Offset position) {
@@ -111,6 +165,8 @@ class DrawingCanvasState extends State<DrawingCanvas> {
   Widget build(BuildContext context) {
     final hasStrokes = _strokes.isNotEmpty || _currentStroke != null;
 
+    final backgroundBytes = decodeBackgroundImage(_backgroundImage);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -140,13 +196,46 @@ class DrawingCanvasState extends State<DrawingCanvas> {
                 ),
               ),
             const Spacer(),
+            PopupMenuButton<String>(
+              tooltip: 'Background image',
+              icon: Icon(
+                _backgroundImage == null ? Icons.image_outlined : Icons.image,
+                color: _backgroundImage == null ? null : Colors.amber.shade800,
+              ),
+              onSelected: (value) {
+                if (value == 'pick') {
+                  _pickBackground();
+                } else if (value == 'remove') {
+                  _removeBackground();
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'pick',
+                  child: ListTile(
+                    leading: Icon(Icons.add_photo_alternate_outlined),
+                    title: Text('Choose image'),
+                  ),
+                ),
+                if (_backgroundImage != null)
+                  const PopupMenuItem(
+                    value: 'remove',
+                    child: ListTile(
+                      leading: Icon(Icons.hide_image_outlined),
+                      title: Text('Remove image'),
+                    ),
+                  ),
+              ],
+            ),
             IconButton(
               tooltip: 'Undo',
+              visualDensity: VisualDensity.compact,
               onPressed: hasStrokes ? _undo : null,
               icon: const Icon(Icons.undo),
             ),
             IconButton(
               tooltip: 'Clear',
+              visualDensity: VisualDensity.compact,
               onPressed: hasStrokes ? _clear : null,
               icon: const Icon(Icons.delete_sweep_outlined),
             ),
@@ -181,12 +270,26 @@ class DrawingCanvasState extends State<DrawingCanvas> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: CustomPaint(
-                      painter: StrokePainter(
-                        strokes: allStrokes,
-                        color: _penColor,
-                      ),
-                      child: const SizedBox.expand(),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        if (backgroundBytes != null)
+                          Image.memory(
+                            backgroundBytes,
+                            fit: BoxFit.cover,
+                            gaplessPlayback: true,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const SizedBox.expand();
+                            },
+                          ),
+                        CustomPaint(
+                          painter: StrokePainter(
+                            strokes: allStrokes,
+                            color: _penColor,
+                          ),
+                          child: const SizedBox.expand(),
+                        ),
+                      ],
                     ),
                   ),
                 ),

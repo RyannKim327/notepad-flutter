@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "notepad" "\0"
+            VALUE "CompanyName", "mpop.notebook" "\0"
+            VALUE "FileDescription", "Notebook" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "notepad" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "notepad.exe" "\0"
-            VALUE "ProductName", "notepad" "\0"
+            VALUE "InternalName", "Notebook" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Master Piece of Paper. All rights reserved." "\0"
+            VALUE "OriginalFilename", "notebook.exe" "\0"
+            VALUE "ProductName", "Notebook" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

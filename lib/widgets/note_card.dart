@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/note_block.dart';
+import '../services/note_exporter.dart';
 import 'drawing_thumbnail.dart';
 
 // A note row in the notes list, with a sketch thumbnail when present.
@@ -11,11 +12,14 @@ class NoteCard extends StatelessWidget {
 
   final VoidCallback onDelete;
 
+  final ValueChanged<NoteExportFormat> onExport;
+
   const NoteCard({
     super.key,
     required this.note,
     required this.onTap,
     required this.onDelete,
+    required this.onExport,
   });
 
   @override
@@ -26,6 +30,7 @@ class NoteCard extends StatelessWidget {
 
     String preview = '';
     List<List<Offset>>? sketch;
+    String? sketchBackground;
 
     for (final block in blocks) {
       if (block.type == NoteBlockType.text) {
@@ -34,8 +39,10 @@ class NoteCard extends StatelessWidget {
         if (preview.isEmpty && text.isNotEmpty) {
           preview = text;
         }
-      } else if (sketch == null && block.strokes.isNotEmpty) {
+      } else if (sketch == null &&
+          (block.strokes.isNotEmpty || block.backgroundImage != null)) {
         sketch = block.strokes;
+        sketchBackground = block.backgroundImage;
       }
     }
 
@@ -46,6 +53,8 @@ class NoteCard extends StatelessWidget {
     }
 
     final isHandwrittenOnly = hasSketch && preview == 'Handwritten note';
+
+    final backgroundBytes = decodeBackgroundImage(sketchBackground);
 
     return Card(
       color: Colors.white,
@@ -64,9 +73,26 @@ class NoteCard extends StatelessWidget {
                   color: const Color(0xFFFFF3D6),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: CustomPaint(
-                  painter: DrawingThumbnailPainter(strokes: sketch),
-                  child: const SizedBox.expand(),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (backgroundBytes != null)
+                        Image.memory(
+                          backgroundBytes,
+                          fit: BoxFit.cover,
+                          gaplessPlayback: true,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const SizedBox.expand();
+                          },
+                        ),
+                      CustomPaint(
+                        painter: DrawingThumbnailPainter(strokes: sketch),
+                        child: const SizedBox.expand(),
+                      ),
+                    ],
+                  ),
                 ),
               )
             : null,
@@ -92,9 +118,35 @@ class NoteCard extends StatelessWidget {
 
         onTap: onTap,
 
-        trailing: IconButton(
-          icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-          onPressed: onDelete,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            PopupMenuButton<NoteExportFormat>(
+              tooltip: 'Export note',
+              icon: const Icon(Icons.ios_share),
+              onSelected: onExport,
+              itemBuilder: (context) => const [
+                PopupMenuItem(
+                  value: NoteExportFormat.pdf,
+                  child: ListTile(
+                    leading: Icon(Icons.picture_as_pdf_outlined),
+                    title: Text('Export as PDF'),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: NoteExportFormat.json,
+                  child: ListTile(
+                    leading: Icon(Icons.data_object),
+                    title: Text('Export as JSON'),
+                  ),
+                ),
+              ],
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+              onPressed: onDelete,
+            ),
+          ],
         ),
       ),
     );
