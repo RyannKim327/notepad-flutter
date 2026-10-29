@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:notepad/models/note_block.dart';
+import 'package:notebook/models/note_block.dart';
 
 void main() {
   test('encode/decode round trips mixed blocks', () {

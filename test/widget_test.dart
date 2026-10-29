@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:notepad/main.dart';
+import 'package:notebook/main.dart';
 
 void main() {
   setUp(() {
@@ -20,7 +20,7 @@ void main() {
   }
 
   testWidgets('creates a typed note', (WidgetTester tester) async {
-    await tester.pumpWidget(const Notepad());
+    await tester.pumpWidget(const Notebook());
     await tester.pumpAndSettle();
 
     expect(find.text('My Notes'), findsOneWidget);
@@ -49,7 +49,7 @@ void main() {
   testWidgets('mixes typed text and a sketch in one note', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const Notepad());
+    await tester.pumpWidget(const Notebook());
     await tester.pumpAndSettle();
 
     await tester.tap(find.byIcon(Icons.add));

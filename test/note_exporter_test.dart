@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:notepad/models/note_block.dart';
-import 'package:notepad/services/note_exporter.dart';
+import 'package:notebook/models/note_block.dart';
+import 'package:notebook/services/note_exporter.dart';
 
 void main() {
   final note = <String, String>{
