@@ -61,8 +61,7 @@ class DrawingThumbnailPainter extends CustomPainter {
         continue;
       }
 
-      final path = Path()
-        ..moveTo(stroke.first.dx, stroke.first.dy);
+      final path = Path()..moveTo(stroke.first.dx, stroke.first.dy);
 
       for (var i = 1; i < stroke.length; i++) {
         path.lineTo(stroke[i].dx, stroke[i].dy);
@@ -73,9 +72,7 @@ class DrawingThumbnailPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(
-    covariant DrawingThumbnailPainter oldDelegate,
-  ) {
+  bool shouldRepaint(covariant DrawingThumbnailPainter oldDelegate) {
     return oldDelegate.strokes != strokes;
   }
 }

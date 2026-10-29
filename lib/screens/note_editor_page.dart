@@ -7,26 +7,22 @@ import '../widgets/drawing_canvas.dart';
 class NoteEditorPage extends StatefulWidget {
   final Map<String, String>? existingNote;
 
-  const NoteEditorPage({
-    super.key,
-    this.existingNote,
-  });
+  const NoteEditorPage({super.key, this.existingNote});
 
   @override
-  State<NoteEditorPage> createState() =>
-      _NoteEditorPageState();
+  State<NoteEditorPage> createState() => _NoteEditorPageState();
 }
 
 class _EditorBlock {
   _EditorBlock.text({String text = ''})
-      : type = NoteBlockType.text,
-        controller = TextEditingController(text: text),
-        strokes = const [];
+    : type = NoteBlockType.text,
+      controller = TextEditingController(text: text),
+      strokes = const [];
 
   _EditorBlock.drawing(List<List<Offset>> strokes)
-      : type = NoteBlockType.drawing,
-        controller = null,
-        strokes = strokes;
+    : type = NoteBlockType.drawing,
+      controller = null,
+      strokes = strokes;
 
   final NoteBlockType type;
 
@@ -136,8 +132,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
         }
       } else {
         final strokes =
-            (block.canvasKey.currentState?.allStrokes ??
-                    block.strokes)
+            (block.canvasKey.currentState?.allStrokes ?? block.strokes)
                 .where((stroke) => stroke.isNotEmpty)
                 .toList();
 
@@ -149,11 +144,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
 
     if (title.isEmpty && savedBlocks.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Please type or sketch something first.',
-          ),
-        ),
+        const SnackBar(content: Text('Please type or sketch something first.')),
       );
       return;
     }
@@ -189,15 +180,8 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
             child: const Text('Cancel'),
           ),
           Padding(
-            padding: const EdgeInsets.only(
-              right: 12,
-              top: 8,
-              bottom: 8,
-            ),
-            child: FilledButton(
-              onPressed: _save,
-              child: const Text('Save'),
-            ),
+            padding: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
+            child: FilledButton(onPressed: _save, child: const Text('Save')),
           ),
         ],
       ),
@@ -262,9 +246,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
         color: Colors.white,
         elevation: 1,
         margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
           child: Row(
@@ -301,9 +283,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
       color: Colors.white,
       elevation: 1,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 8, 8, 12),
         child: Column(

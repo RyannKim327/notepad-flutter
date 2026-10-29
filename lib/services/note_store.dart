@@ -18,9 +18,7 @@ class NoteStore {
 
       return decodedNotes
           .map(
-            (note) => Map<String, String>.from(
-              note as Map<dynamic, dynamic>,
-            ),
+            (note) => Map<String, String>.from(note as Map<dynamic, dynamic>),
           )
           .toList();
     } catch (_) {
@@ -28,9 +26,7 @@ class NoteStore {
     }
   }
 
-  Future<void> saveNotes(
-    List<Map<String, String>> notes,
-  ) async {
+  Future<void> saveNotes(List<Map<String, String>> notes) async {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.setString(_notesKey, jsonEncode(notes));

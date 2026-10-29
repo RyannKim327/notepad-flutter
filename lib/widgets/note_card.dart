@@ -45,16 +45,13 @@ class NoteCard extends StatelessWidget {
       preview = 'Handwritten note';
     }
 
-    final isHandwrittenOnly =
-        hasSketch && preview == 'Handwritten note';
+    final isHandwrittenOnly = hasSketch && preview == 'Handwritten note';
 
     return Card(
       color: Colors.white,
       elevation: 1,
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
 
@@ -68,9 +65,7 @@ class NoteCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: CustomPaint(
-                  painter: DrawingThumbnailPainter(
-                    strokes: sketch,
-                  ),
+                  painter: DrawingThumbnailPainter(strokes: sketch),
                   child: const SizedBox.expand(),
                 ),
               )
@@ -80,10 +75,7 @@ class NoteCard extends StatelessWidget {
           title.isEmpty ? 'Untitled Note' : title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
 
         subtitle: Padding(
@@ -101,10 +93,7 @@ class NoteCard extends StatelessWidget {
         onTap: onTap,
 
         trailing: IconButton(
-          icon: const Icon(
-            Icons.delete_outline,
-            color: Colors.redAccent,
-          ),
+          icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
           onPressed: onDelete,
         ),
       ),

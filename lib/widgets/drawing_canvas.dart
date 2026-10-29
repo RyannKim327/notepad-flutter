@@ -13,10 +13,7 @@ const List<Color> _penColors = [
 class DrawingCanvas extends StatefulWidget {
   final List<List<Offset>> initialStrokes;
 
-  const DrawingCanvas({
-    super.key,
-    this.initialStrokes = const [],
-  });
+  const DrawingCanvas({super.key, this.initialStrokes = const []});
 
   @override
   State<DrawingCanvas> createState() => DrawingCanvasState();
@@ -44,8 +41,7 @@ class DrawingCanvasState extends State<DrawingCanvas> {
   List<List<Offset>> get allStrokes {
     return [
       ..._strokes,
-      if (_currentStroke != null)
-        List<Offset>.from(_currentStroke!),
+      if (_currentStroke != null) List<Offset>.from(_currentStroke!),
     ];
   }
 
@@ -113,8 +109,7 @@ class DrawingCanvasState extends State<DrawingCanvas> {
 
   @override
   Widget build(BuildContext context) {
-    final hasStrokes =
-        _strokes.isNotEmpty || _currentStroke != null;
+    final hasStrokes = _strokes.isNotEmpty || _currentStroke != null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -164,11 +159,10 @@ class DrawingCanvasState extends State<DrawingCanvas> {
           child: RawGestureDetector(
             gestures: {
               EagerGestureRecognizer:
-                  GestureRecognizerFactoryWithHandlers<
-                      EagerGestureRecognizer>(
-                () => EagerGestureRecognizer(),
-                (EagerGestureRecognizer instance) {},
-              ),
+                  GestureRecognizerFactoryWithHandlers<EagerGestureRecognizer>(
+                    () => EagerGestureRecognizer(),
+                    (EagerGestureRecognizer instance) {},
+                  ),
             },
             child: Listener(
               key: const ValueKey('drawing-canvas'),
@@ -240,8 +234,7 @@ class StrokePainter extends CustomPainter {
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round;
 
-      final path = Path()
-        ..moveTo(stroke.first.dx, stroke.first.dy);
+      final path = Path()..moveTo(stroke.first.dx, stroke.first.dy);
 
       for (var i = 1; i < stroke.length; i++) {
         path.lineTo(stroke[i].dx, stroke[i].dy);

@@ -45,16 +45,12 @@ class _Homepage extends State<NotepadHomepage> {
 
   // Create a new note or edit an existing note.
   Future<void> openNoteEditor({int? index}) async {
-    final existingNote =
-        index != null ? notes[index] : null;
+    final existingNote = index != null ? notes[index] : null;
 
-    final result =
-        await Navigator.of(context).push<Map<String, String>>(
+    final result = await Navigator.of(context).push<Map<String, String>>(
       MaterialPageRoute(
         builder: (context) {
-          return NoteEditorPage(
-            existingNote: existingNote,
-          );
+          return NoteEditorPage(existingNote: existingNote);
         },
       ),
     );
@@ -79,9 +75,7 @@ class _Homepage extends State<NotepadHomepage> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Delete Note'),
-          content: const Text(
-            'Are you sure you want to delete this note?',
-          ),
+          content: const Text('Are you sure you want to delete this note?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -93,10 +87,7 @@ class _Homepage extends State<NotepadHomepage> {
               onPressed: () {
                 Navigator.pop(context, true);
               },
-              child: const Text(
-                'Delete',
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -118,12 +109,8 @@ class _Homepage extends State<NotepadHomepage> {
       final title = note['title'] ?? '';
       final content = note['content'] ?? '';
 
-      return title.toLowerCase().contains(
-                searchQuery.toLowerCase(),
-              ) ||
-          content.toLowerCase().contains(
-                searchQuery.toLowerCase(),
-              );
+      return title.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          content.toLowerCase().contains(searchQuery.toLowerCase());
     }).toList();
 
     return Scaffold(
@@ -131,18 +118,13 @@ class _Homepage extends State<NotepadHomepage> {
         backgroundColor: const Color(0xFFFFFBF2),
         title: const Text(
           'My Notes',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 26,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26),
         ),
         centerTitle: false,
       ),
 
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+          ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -173,8 +155,7 @@ class _Homepage extends State<NotepadHomepage> {
                     child: filteredNotes.isEmpty
                         ? Center(
                             child: Column(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
                                   Icons.note_alt_outlined,
@@ -193,9 +174,7 @@ class _Homepage extends State<NotepadHomepage> {
                                 ),
                                 const SizedBox(height: 8),
                                 if (searchQuery.isEmpty)
-                                  const Text(
-                                    'Tap + to type or sketch a note.',
-                                  ),
+                                  const Text('Tap + to type or sketch a note.'),
                               ],
                             ),
                           )
@@ -205,15 +184,12 @@ class _Homepage extends State<NotepadHomepage> {
                               final note = filteredNotes[i];
 
                               // Find the original note index.
-                              final originalIndex =
-                                  notes.indexOf(note);
+                              final originalIndex = notes.indexOf(note);
 
                               return NoteCard(
                                 note: note,
                                 onTap: () {
-                                  openNoteEditor(
-                                    index: originalIndex,
-                                  );
+                                  openNoteEditor(index: originalIndex);
                                 },
                                 onDelete: () {
                                   deleteNote(originalIndex);

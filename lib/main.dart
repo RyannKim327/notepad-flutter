@@ -15,9 +15,7 @@ class Notepad extends StatelessWidget {
       title: 'Notepad',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.amber,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
         scaffoldBackgroundColor: const Color(0xFFFFFBF2),
         useMaterial3: true,
       ),
